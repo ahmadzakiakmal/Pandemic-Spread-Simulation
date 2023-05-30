@@ -8,6 +8,10 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+html {
+  overflow-x: hidden !important;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
@@ -24,4 +28,17 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+@keyframes translate {
+  from {
+    right: calc(100%-100px);
+  }
+  to {
+    right: -100px;
+  }
+}
+
+.animate-translate {
+  animation: translate 10s linear infinite;
 }
