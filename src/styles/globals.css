@@ -24,3 +24,10 @@ html {
   display: grid;
   grid-template-columns: repeat(var(--grid-cols), 1fr);
 }
+
+.unselectable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
