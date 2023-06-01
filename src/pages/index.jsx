@@ -6,7 +6,7 @@ function GridBox({ value, showVisuals, index, grid, cols }) {
   return (
     <div
       className={
-        "w-[80px] !aspect-square relative font-bold grid place-items-center border-black border-1 border box-border border-dashed " +
+        "w-[80px] transition-colors duration-200 aspect-square relative font-bold grid place-items-center border-black border-1 border box-border border-dashed " +
         (value == 2
           ? " bg-red-500/30 after:absolute after:w-[240px] after:aspect-square after:bg-red-500/[.15] "
           : "")
@@ -42,9 +42,9 @@ export default function Home() {
 
   // * Other Parameters
   // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap grid
-  const [populationDensity, setPopulationDensity] = useState(0.5);
+  const [populationDensity, setPopulationDensity] = useState(0.3);
   // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas 1 orang membawa penyakit
-  const [infectionRate, setInfectionRate] = useState(0.1);
+  const [infectionRate, setInfectionRate] = useState(1/30);
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan jarak neighborhood yang dapat tertular
   const [spreadRange, setSpreadRange] = useState(1);
   // ? Imunitas seseorang - Dimodelkan dengan probabilitas orang dalam jarak tertular, bisa tidak tertular
@@ -60,6 +60,7 @@ export default function Home() {
 
   // * Populate Grid
   useEffect(() => {
+    setIteration(0);
     const newGrid = [];
     for (let i = 0; i < rows * cols; i++) {
       const randomNumber = Math.random();
@@ -78,7 +79,7 @@ export default function Home() {
       });
     }
     setGrid(newGrid);
-  }, [rows, cols, refresh]);
+  }, [refresh]);
 
   // * Spread Disease
   useEffect(() => {
@@ -184,7 +185,7 @@ export default function Home() {
           <div
             className="bg-black text-white cursor-pointer p-3 unselectable"
             onClick={() => {
-              setIteration(iteration + 1);
+              iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
           >
             Next Iteration
