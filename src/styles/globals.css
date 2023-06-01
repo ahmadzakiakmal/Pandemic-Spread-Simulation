@@ -25,6 +25,10 @@ html {
   grid-template-columns: repeat(var(--grid-cols), 1fr);
 }
 
+.infection-zone::after {
+  width: var(--zone-size);
+}
+
 .unselectable {
   -webkit-user-select: none;
   -moz-user-select: none;
