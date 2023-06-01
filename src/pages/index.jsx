@@ -38,11 +38,41 @@ function Settings({ saveSettings }) {
   return (
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center">
       <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
-        <h1 className="text-center font-bold">Settings</h1>
+        <h1 className="text-center font-bold text-2xl mb-5">Settings</h1>
         <form
           onSubmit={(e) => saveSettings(e)}
-          className="my-3 flex flex-col gap-2"
+          className="my-3 flex flex-col gap-4"
         >
+          <div className="flex flex-row gap-4">
+            <div className="w-1/2">
+              <label className="text-center w-full block " htmlFor="rows">
+                Rows
+              </label>
+              <input
+                className="!outline-none w-full text-center"
+                type="number"
+                name="rows"
+                id="rows"
+                max={20}
+                min={1}
+              />
+              <hr className="h-[2px] bg-black/20" />
+            </div>
+            <div className="w-1/2">
+              <label className="text-center w-full block " htmlFor="cols">
+                Columns
+              </label>
+              <input
+                className="!outline-none w-full text-center"
+                type="number"
+                name="cols"
+                id="cols"
+                max={20}
+                min={1}
+              />
+              <hr className="h-[2px] bg-black/20" />
+            </div>
+          </div>
           <div className="flex flex-col">
             <label htmlFor="populationDensity">Population Density</label>
             <input
@@ -50,8 +80,11 @@ function Settings({ saveSettings }) {
               type="number"
               name="populationDensity"
               id="populationDensity"
+              min={0}
+              max={1}
+              step={0.01}
             />
-            <hr />
+            <hr className="h-[2px] bg-black/20" />
           </div>
           <div className="flex flex-col">
             <label htmlFor="infectionRate">Infection Rate</label>
@@ -60,8 +93,11 @@ function Settings({ saveSettings }) {
               type="number"
               name="infectionRate"
               id="infectionRate"
+              min={0}
+              max={1}
+              step={0.01}
             />
-            <hr />
+            <hr className="h-[2px] bg-black/20" />
           </div>
           <div className="flex flex-col">
             <label htmlFor="spreadRange">Spread Range</label>
@@ -70,8 +106,11 @@ function Settings({ saveSettings }) {
               type="number"
               name="spreadRange"
               id="spreadRange"
+              min={0}
+              max={1}
+              step={0.01}
             />
-            <hr />
+            <hr className="h-[2px] bg-black/20" />
           </div>
           <button
             type="submit"
