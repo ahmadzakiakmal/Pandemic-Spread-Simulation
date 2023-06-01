@@ -42,9 +42,9 @@ export default function Home() {
 
   // * Other Parameters
   // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap grid
-  const [populationDensity, setPopulationDensity] = useState(0.3);
+  const [populationDensity, setPopulationDensity] = useState(0.5);
   // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas 1 orang membawa penyakit
-  const [infectionRate, setInfectionRate] = useState(1/30);
+  const [infectionRate, setInfectionRate] = useState(1 / 100);
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan jarak neighborhood yang dapat tertular
   const [spreadRange, setSpreadRange] = useState(1);
   // ? Imunitas seseorang - Dimodelkan dengan probabilitas orang dalam jarak tertular, bisa tidak tertular
@@ -84,65 +84,69 @@ export default function Home() {
   // * Spread Disease
   useEffect(() => {
     if (grid.length > 0) {
-      const newGrid = [...grid];
+      console.log(`Iteration ${iteration}`);
+      const newGrid = [...grid]; // Create a new copy of the grid
+      const infectedCells = []; // Store the indices of infected cells
+
       for (let i = 0; i < rows * cols; i++) {
-        if (newGrid[i].value == 2) {
-          // * Spread Disease to the left of the sick person
-          if (
-            grid[i - 1] &&
-            grid[i - 1].value == 1 &&
-            i % cols != 0 //? Check if the person is not at the leftmost of the grid
-          ) {
-            newGrid[i - 1].value = 2;
-          }
-          // * Spread Disease to the right of the sick person
-          if (
-            grid[i + 1] &&
-            grid[i + 1].value == 1 &&
-            i % cols != cols - 1 //? Check if the person is not at the rightmost of the grid
-          ) {
-            newGrid[i + 1].value = 2;
-          }
-          // * Spread Disease to the top of the sick person
-          if (grid[i - cols] && grid[i - cols].value == 1) {
-            newGrid[i - cols].value = 2;
-          }
-          // * Spread Disease to the bottom of the sick person
-          if (grid[i + cols] && grid[i + cols].value == 1) {
-            newGrid[i + cols].value = 2;
-          }
-          // * Spread Disease to the top left of the sick person
-          if (
-            grid[i - cols - 1] &&
-            grid[i - cols - 1].value == 1 &&
-            i % cols != 0 //? Check if the person is not at the leftmost of the grid
-          ) {
-            newGrid[i - cols - 1].value = 2;
-          }
-          // * Spread Disease to the top right of the sick person
-          if (
-            grid[i - cols + 1] &&
-            grid[i - cols + 1].value == 1 &&
-            i % cols != cols - 1 //? Check if the person is not at the rightmost of the grid
-          ) {
-            newGrid[i - cols + 1].value = 2;
-          }
-          // * Spread Disease to the bottom left of the sick person
-          if (
-            grid[i + cols - 1] &&
-            grid[i + cols - 1].value == 1 &&
-            i % cols != 0 //? Check if the person is not at the leftmost of the grid
-          ) {
-            newGrid[i + cols - 1].value = 2;
-          }
-          // * Spread Disease to the bottom right of the sick person
-          if (
-            grid[i + cols + 1] &&
-            grid[i + cols + 1].value == 1 &&
-            i % cols != cols - 1 //? Check if the person is not at the rightmost of the grid
-          ) {
-            newGrid[i + cols + 1].value = 2;
-          }
+        if (newGrid[i].value === 2) {
+          // Store the infected cell index
+          infectedCells.push(i);
+        }
+      }
+
+      // Iterate through infected cells and spread the disease
+      for (const infectedIndex of infectedCells) {
+        const row = Math.floor(infectedIndex / cols);
+        const col = infectedIndex % cols;
+        
+        // * Spread Disease to the left of the sick person
+        if (col > 0 && newGrid[infectedIndex - 1].value === 1) {
+          newGrid[infectedIndex - 1].value = 2;
+        }
+        // * Spread Disease to the right of the sick person
+        if (col < cols - 1 && newGrid[infectedIndex + 1].value === 1) {
+          newGrid[infectedIndex + 1].value = 2;
+        }
+        // * Spread Disease to the top of the sick person
+        if (row > 0 && newGrid[infectedIndex - cols].value === 1) {
+          newGrid[infectedIndex - cols].value = 2;
+        }
+        // * Spread Disease to the bottom of the sick person
+        if (row < rows - 1 && newGrid[infectedIndex + cols].value === 1) {
+          newGrid[infectedIndex + cols].value = 2;
+        }
+        // * Spread Disease to the top left of the sick person
+        if (
+          row > 0 &&
+          col > 0 &&
+          newGrid[infectedIndex - cols - 1].value === 1
+        ) {
+          newGrid[infectedIndex - cols - 1].value = 2;
+        }
+        // * Spread Disease to the top right of the sick person
+        if (
+          row > 0 &&
+          col < cols - 1 &&
+          newGrid[infectedIndex - cols + 1].value === 1
+        ) {
+          newGrid[infectedIndex - cols + 1].value = 2;
+        }
+        // * Spread Disease to the bottom left of the sick person
+        if (
+          row < rows - 1 &&
+          col > 0 &&
+          newGrid[infectedIndex + cols - 1].value === 1
+        ) {
+          newGrid[infectedIndex + cols - 1].value = 2;
+        }
+        // * Spread Disease to the bottom right of the sick person
+        if (
+          row < rows - 1 &&
+          col < cols - 1 &&
+          newGrid[infectedIndex + cols + 1].value === 1
+        ) {
+          newGrid[infectedIndex + cols + 1].value = 2;
         }
       }
       setGrid(newGrid);
