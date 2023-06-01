@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { IoPerson } from "react-icons/io5";
+import {BsFillGearFill} from "react-icons/bs";
 
 function GridBox({ value, showVisuals, index, grid, cols }) {
   return (
@@ -35,8 +36,8 @@ function GridBox({ value, showVisuals, index, grid, cols }) {
 
 export default function Home() {
   // * Setup Grid
-  const [rows, setRows] = useState(15);
-  const [cols, setCols] = useState(15);
+  const [rows, setRows] = useState(5);
+  const [cols, setCols] = useState(5);
   const [grid, setGrid] = useState([]);
   const [colsClass, setColsClass] = useState("grid-cols-5");
 
@@ -99,7 +100,7 @@ export default function Home() {
       for (const infectedIndex of infectedCells) {
         const row = Math.floor(infectedIndex / cols);
         const col = infectedIndex % cols;
-        
+
         // * Spread Disease to the left of the sick person
         if (col > 0 && newGrid[infectedIndex - 1].value === 1) {
           newGrid[infectedIndex - 1].value = 2;
@@ -195,6 +196,9 @@ export default function Home() {
             Next Iteration
           </div>
         </div>
+      </div>
+      <div className="absolute top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90">
+        <BsFillGearFill className="text-[30px]" />
       </div>
     </main>
   );
