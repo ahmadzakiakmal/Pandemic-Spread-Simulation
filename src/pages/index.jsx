@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { IoPerson } from "react-icons/io5";
 import { BsFillGearFill } from "react-icons/bs";
 
-function GridBox({ value, showVisuals, index, grid, cols }) {
+function GridBox({ value, showVisuals, i, j }) {
   return (
     <div
       className={
@@ -29,12 +29,23 @@ function GridBox({ value, showVisuals, index, grid, cols }) {
       ) : (
         <h1>{value}</h1>
       )}
-      {/* {index} */}
+      {/* {i + "," + j} */}
     </div>
   );
 }
 
-function Settings({ saveSettings, populationDensity, infectionRate, rows, cols, setPopulationDensity, setInfectionRate, setRows, setCols, setSpreadRange }) {
+function Settings({
+  saveSettings,
+  populationDensity,
+  infectionRate,
+  rows,
+  cols,
+  setPopulationDensity,
+  setInfectionRate,
+  setRows,
+  setCols,
+  setSpreadRange,
+}) {
   return (
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0">
       <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
@@ -44,35 +55,19 @@ function Settings({ saveSettings, populationDensity, infectionRate, rows, cols, 
           className="my-3 flex flex-col gap-4"
         >
           <div className="flex flex-row gap-4">
-            <div className="w-1/2">
-              <label className="text-center w-full block " htmlFor="rows">
-                Rows
+            <div className="w-full">
+              <label className="w-full block " htmlFor="rows">
+                Grid Size (n times n)
               </label>
               <input
-                className="!outline-none w-full text-center"
+                className="!outline-none w-full"
                 type="number"
                 name="rows"
                 id="rows"
                 max={20}
                 min={1}
                 value={rows}
-                onChange={(e) => setRows(e.target.value)}
-              />
-              <hr className="h-[2px] bg-black/20" />
-            </div>
-            <div className="w-1/2">
-              <label className="text-center w-full block " htmlFor="cols">
-                Columns
-              </label>
-              <input
-                className="!outline-none w-full text-center"
-                type="number"
-                name="cols"
-                id="cols"
-                max={20}
-                min={1}
-                value={cols}
-                onChange={(e) => setCols(e.target.value)}
+                onChange={(e) => {setRows(e.target.value); setCols(e.target.value)}}
               />
               <hr className="h-[2px] bg-black/20" />
             </div>
@@ -136,7 +131,7 @@ function Settings({ saveSettings, populationDensity, infectionRate, rows, cols, 
 export default function Home() {
   // * Setup Grid
   const [rows, setRows] = useState(5);
-  const [cols, setCols] = useState(5);
+  const [cols, setCols] = useState(rows);
   const [grid, setGrid] = useState([]);
   const [colsClass, setColsClass] = useState("grid-cols-5");
 
@@ -163,92 +158,92 @@ export default function Home() {
   useEffect(() => {
     setIteration(0);
     const newGrid = [];
-    for (let i = 0; i < rows * cols; i++) {
-      const randomNumber = Math.random();
-      // console.log(randomNumber);
-      let value = 0;
-      if (randomNumber < populationDensity) {
-        const randomNumber2 = Math.random();
-        if (randomNumber2 < infectionRate) {
-          value = 2;
-        } else {
-          value = 1;
+    for (let i = 0; i < cols; i++) {
+      const row = [];
+      for (let j = 0; j < rows; j++) {
+        const randomNumber = Math.random();
+        let value = 0;
+        if (randomNumber < populationDensity) {
+          if (randomNumber < infectionRate) {
+            value = 2;
+          } else {
+            value = 1;
+          }
         }
+
+        row.push({
+          value,
+        });
       }
-      newGrid.push({
-        value,
-      });
+      newGrid.push(row);
     }
+    console.log(newGrid);
     setGrid(newGrid);
   }, [refresh]);
 
   // * Spread Disease
   useEffect(() => {
-    if (grid.length == rows * cols) {
+    const newGrid = JSON.parse(JSON.stringify(grid)); // * Create a new copy of the grid
+    const infectedCells = [];
+    if (grid.length > 0) {
       console.log(`Iteration ${iteration}`);
-      const newGrid = [...grid]; // Create a new copy of the grid
-      const infectedCells = []; // Store the indices of infected cells
-
-      for (let i = 0; i < rows * cols; i++) {
-        if (newGrid[i]?.value === 2) {
-          // Store the infected cell index
-          infectedCells.push(i);
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          if (grid[i][j]) {
+            if (grid[i][j]?.value === 2) {
+              infectedCells.push({ row: i, col: j }); // * Store the infected cell coordinates
+            }
+          }
         }
       }
-
-      // Iterate through infected cells and spread the disease
-      for (const infectedIndex of infectedCells) {
-        const row = Math.floor(infectedIndex / cols);
-        const col = infectedIndex % cols;
-
-        // * Spread Disease to the left of the sick person
-        if (col > 0 && newGrid[infectedIndex - 1].value === 1) {
-          newGrid[infectedIndex - 1].value = 2;
-        }
-        // * Spread Disease to the right of the sick person
-        if (col < cols - 1 && newGrid[infectedIndex + 1].value === 1) {
-          newGrid[infectedIndex + 1].value = 2;
-        }
-        // * Spread Disease to the top of the sick person
-        if (row > 0 && newGrid[infectedIndex - cols]?.value === 1) {
-          newGrid[infectedIndex - cols].value = 2;
-        }
-        // * Spread Disease to the bottom of the sick person
-        if (row < rows - 1 && newGrid[infectedIndex + cols]?.value === 1) {
-          newGrid[infectedIndex + cols].value = 2;
-          console.log(infectedIndex + cols)
-        }
-        // * Spread Disease to the top left of the sick person
-        if (
-          row > 0 &&
-          col > 0 &&
-          newGrid[infectedIndex - cols - 1].value === 1
-        ) {
-          newGrid[infectedIndex - cols - 1].value = 2;
-        }
-        // * Spread Disease to the top right of the sick person
-        if (
-          row > 0 &&
-          col < cols - 1 &&
-          newGrid[infectedIndex - cols + 1].value === 1
-        ) {
-          newGrid[infectedIndex - cols + 1].value = 2;
-        }
-        // * Spread Disease to the bottom left of the sick person
-        if (
-          row < rows - 1 &&
-          col > 0 &&
-          newGrid[infectedIndex + cols - 1].value === 1
-        ) {
-          newGrid[infectedIndex + cols - 1].value = 2;
-        }
-        // * Spread Disease to the bottom right of the sick person
-        if (
-          row < rows - 1 &&
-          col < cols - 1 &&
-          newGrid[infectedIndex + cols + 1].value === 1
-        ) {
-          newGrid[infectedIndex + cols + 1].value = 2;
+      // * Iterate through infected cells and spread the disease
+      for (const infectedCell of infectedCells) {
+        const { row, col } = infectedCell;
+        if (row < rows && col < cols) {
+          // * Spread Disease to the left of the sick person
+          if (col > 0 && newGrid[row][col - 1]?.value === 1) {
+            newGrid[row][col - 1].value = 2;
+          }
+          // * Spread Disease to the right of the sick person
+          if (col < cols - 1 && newGrid[row][col + 1]?.value === 1) {
+            newGrid[row][col + 1].value = 2;
+          }
+          // * Spread Disease to the top of the sick person
+          if (row > 0 && newGrid[row - 1][col]?.value === 1) {
+            newGrid[row - 1][col].value = 2;
+          }
+          // * Spread Disease to the bottom of the sick person
+          if (row < rows - 1 && newGrid[row + 1][col]?.value === 1) {
+            newGrid[row + 1][col].value = 2;
+          }
+          // * Spread Disease to the top left of the sick person
+          if (row > 0 && col > 0 && newGrid[row - 1][col - 1]?.value === 1) {
+            newGrid[row - 1][col - 1].value = 2;
+          }
+          // * Spread Disease to the top right of the sick person
+          if (
+            row > 0 &&
+            col < cols - 1 &&
+            newGrid[row - 1][col + 1]?.value === 1
+          ) {
+            newGrid[row - 1][col + 1].value = 2;
+          }
+          // * Spread Disease to the bottom left of the sick person
+          if (
+            row < rows - 1 &&
+            col > 0 &&
+            newGrid[row + 1][col - 1]?.value === 1
+          ) {
+            newGrid[row + 1][col - 1].value = 2;
+          }
+          // * Spread Disease to the bottom right of the sick person
+          if (
+            row < rows - 1 &&
+            col < cols - 1 &&
+            newGrid[row + 1][col + 1]?.value === 1
+          ) {
+            newGrid[row + 1][col + 1].value = 2;
+          }
         }
       }
       setGrid(newGrid);
@@ -273,18 +268,23 @@ export default function Home() {
       <div className="flex flex-col justify-center items-center gap-10 mt-5">
         <div
           className="simulation-grid w-fit outline outline-1 outline-black !overflow-hidden"
-          style={{ "--grid-cols": cols }}
+          style={{ "--grid-cols": rows }}
         >
-          {grid.map((grid_item, i) => (
-            <GridBox
-              key={i}
-              value={grid_item.value}
-              index={i}
-              showVisuals={showVisuals}
-              grid={grid}
-              cols={cols}
-            />
-          ))}
+          {grid.map((row, i) => {
+            return row.map((col, j) => {
+              return (
+                <GridBox
+                  key={`${i}${j}`}
+                  value={col.value}
+                  i={i}
+                  j={j}
+                  showVisuals={showVisuals}
+                  grid={grid}
+                  cols={cols}
+                />
+              );
+            });
+          })}
         </div>
         <div className="flex gap-5">
           <div
@@ -305,18 +305,19 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {/* Setting Button */}
       <div
         className="absolute top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90"
         onClick={() => setShowSettings(true)}
       >
         <BsFillGearFill className="text-[30px]" />
       </div>
+      {/* Settings Menu */}
       {showSettings && (
         <Settings
           populationDensity={populationDensity}
           infectionRate={infectionRate}
           rows={rows}
-          cols={cols}
           setPopulationDensity={setPopulationDensity}
           setInfectionRate={setInfectionRate}
           setRows={setRows}
