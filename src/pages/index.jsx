@@ -34,9 +34,9 @@ function GridBox({ value, showVisuals, index, grid, cols }) {
   );
 }
 
-function Settings({ saveSettings }) {
+function Settings({ saveSettings, populationDensity, infectionRate, rows, cols, setPopulationDensity, setInfectionRate, setRows, setCols, setSpreadRange }) {
   return (
-    <div className="fixed w-screen h-screen bg-black/50 grid place-items-center">
+    <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0">
       <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
         <h1 className="text-center font-bold text-2xl mb-5">Settings</h1>
         <form
@@ -55,6 +55,8 @@ function Settings({ saveSettings }) {
                 id="rows"
                 max={20}
                 min={1}
+                value={rows}
+                onChange={(e) => setRows(e.target.value)}
               />
               <hr className="h-[2px] bg-black/20" />
             </div>
@@ -69,6 +71,8 @@ function Settings({ saveSettings }) {
                 id="cols"
                 max={20}
                 min={1}
+                value={cols}
+                onChange={(e) => setCols(e.target.value)}
               />
               <hr className="h-[2px] bg-black/20" />
             </div>
@@ -83,6 +87,8 @@ function Settings({ saveSettings }) {
               min={0}
               max={1}
               step={0.01}
+              value={populationDensity}
+              onChange={(e) => setPopulationDensity(e.target.value)}
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
@@ -96,10 +102,12 @@ function Settings({ saveSettings }) {
               min={0}
               max={1}
               step={0.01}
+              value={infectionRate}
+              onChange={(e) => setInfectionRate(e.target.value)}
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label htmlFor="spreadRange">Spread Range</label>
             <input
               className="!outline-none"
@@ -109,9 +117,10 @@ function Settings({ saveSettings }) {
               min={0}
               max={1}
               step={0.01}
+              value={}
             />
             <hr className="h-[2px] bg-black/20" />
-          </div>
+          </div> */}
           <button
             type="submit"
             className="bg-black text-white rounded-md py-2 mt-5 hover:bg-black/90"
@@ -175,13 +184,13 @@ export default function Home() {
 
   // * Spread Disease
   useEffect(() => {
-    if (grid.length > 0) {
+    if (grid.length == rows * cols) {
       console.log(`Iteration ${iteration}`);
       const newGrid = [...grid]; // Create a new copy of the grid
       const infectedCells = []; // Store the indices of infected cells
 
       for (let i = 0; i < rows * cols; i++) {
-        if (newGrid[i].value === 2) {
+        if (newGrid[i]?.value === 2) {
           // Store the infected cell index
           infectedCells.push(i);
         }
@@ -201,12 +210,13 @@ export default function Home() {
           newGrid[infectedIndex + 1].value = 2;
         }
         // * Spread Disease to the top of the sick person
-        if (row > 0 && newGrid[infectedIndex - cols].value === 1) {
+        if (row > 0 && newGrid[infectedIndex - cols]?.value === 1) {
           newGrid[infectedIndex - cols].value = 2;
         }
         // * Spread Disease to the bottom of the sick person
-        if (row < rows - 1 && newGrid[infectedIndex + cols].value === 1) {
+        if (row < rows - 1 && newGrid[infectedIndex + cols]?.value === 1) {
           newGrid[infectedIndex + cols].value = 2;
+          console.log(infectedIndex + cols)
         }
         // * Spread Disease to the top left of the sick person
         if (
@@ -301,7 +311,19 @@ export default function Home() {
       >
         <BsFillGearFill className="text-[30px]" />
       </div>
-      {showSettings && <Settings saveSettings={saveSettings} />}
+      {showSettings && (
+        <Settings
+          populationDensity={populationDensity}
+          infectionRate={infectionRate}
+          rows={rows}
+          cols={cols}
+          setPopulationDensity={setPopulationDensity}
+          setInfectionRate={setInfectionRate}
+          setRows={setRows}
+          setCols={setCols}
+          saveSettings={saveSettings}
+        />
+      )}
     </main>
   );
 }
