@@ -3,16 +3,17 @@ import { useEffect, useState } from "react";
 import { IoPerson } from "react-icons/io5";
 import { BsFillGearFill } from "react-icons/bs";
 
-function GridBox({ value, showVisuals, i, j }) {
+function Cell({ value, showVisuals, i, j, vulnerability }) {
   return (
     <div
       className={
         "w-[80px] transition-colors duration-200 aspect-square relative font-bold grid place-items-center border-black border-1 border box-border border-dashed " +
         (value == 2
           ? " bg-red-500/30 after:absolute after:w-[240px] after:aspect-square after:bg-red-500/[.15] "
-          : "") + (
-            value == 3 ? " bg-blue-500/30 after:absolute after:w-[80px] after:aspect-square after:bg-red-500/[.15] " : ""
-          )
+          : "") +
+        (value == 3
+          ? " bg-blue-500/30 after:absolute after:w-[80px] after:aspect-square after:bg-red-500/[.15] "
+          : "")
       }
     >
       {showVisuals ? (
@@ -23,14 +24,18 @@ function GridBox({ value, showVisuals, i, j }) {
             <IoPerson
               className={
                 "text-[32px] " +
-                (value == 1 ? "text-green-600" : 
-                value == 2 ? "text-red-600" : "text-blue-600 relative z-[2]")
+                (value == 1
+                  ? "text-green-600"
+                  : value == 2
+                  ? "text-red-600"
+                  : "text-blue-600 relative z-[2]")
               }
             />
+            {Number(vulnerability).toFixed(2) || ""}
           </>
         )
       ) : (
-        <h1>{value}</h1>
+        <></>
       )}
       {/* {i + "," + j} */}
     </div>
@@ -60,7 +65,7 @@ function Settings({
           <div className="flex flex-row gap-4">
             <div className="w-full">
               <label className="w-full block " htmlFor="rows">
-                Grid Size (n times n)
+                Grid Size (n x n)
               </label>
               <input
                 className="!outline-none w-full"
@@ -70,7 +75,10 @@ function Settings({
                 max={20}
                 min={1}
                 value={rows}
-                onChange={(e) => {setRows(e.target.value); setCols(e.target.value)}}
+                onChange={(e) => {
+                  setRows(e.target.value);
+                  setCols(e.target.value);
+                }}
               />
               <hr className="h-[2px] bg-black/20" />
             </div>
@@ -105,20 +113,6 @@ function Settings({
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
-          {/* <div className="flex flex-col">
-            <label htmlFor="spreadRange">Spread Range</label>
-            <input
-              className="!outline-none"
-              type="number"
-              name="spreadRange"
-              id="spreadRange"
-              min={0}
-              max={1}
-              step={0.01}
-              value={}
-            />
-            <hr className="h-[2px] bg-black/20" />
-          </div> */}
           <button
             type="submit"
             className="bg-black text-white rounded-md py-2 mt-5 hover:bg-black/90"
@@ -139,14 +133,16 @@ export default function Home() {
   const [colsClass, setColsClass] = useState("grid-cols-5");
 
   // * Other Parameters
-  // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap grid
+  // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap cell
   const [populationDensity, setPopulationDensity] = useState(0.5);
-  // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas 1 orang membawa penyakit
-  const [infectionRate, setInfectionRate] = useState(1 / 100);
-  // ? Ukuran seberapa menular penyakit - Dimodelkan dengan jarak neighborhood yang dapat tertular
-  const [spreadRange, setSpreadRange] = useState(1);
-  // ? Imunitas seseorang - Dimodelkan dengan probabilitas orang dalam jarak tertular, bisa tidak tertular
-  const [immunityRate, setImmunityRate] = useState(0.1);
+  // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas pembawa penyakit pada awal simulasi
+  const [infectedRate, setInfectedRate] = useState(1 / 100);  
+  // ? Rasio orang yang kebal dengan total orang - Dimodelkan dengan probabilitas munculnya orang yang kebal pada awal simulasi
+  const [immunityRate, setImmunityRate] = useState(1/50);
+  // ? Ukuran seberapa menular penyakit - Dimodelkan dengan probability menularkan ke orang sekitar
+  const [infectionProbability, setInfectionProbability] = useState(0.5);
+  // ? Nilai minimum vulnerability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
+  const [minVulnerability, setMinVulnerability] = useState(0.5);
   // ? Iterasi waktu
   const [iteration, setIteration] = useState(0);
 
@@ -166,14 +162,17 @@ export default function Home() {
       for (let j = 0; j < rows; j++) {
         const randomNumber = Math.random();
         let value = 0;
+        let vulnerability = 0;
         if (randomNumber < populationDensity) {
           const randomNumber2 = Math.random();
-          if (randomNumber2 < infectionRate) {
+          const randomNumber3 = Math.random() * (1 - minVulnerability) + minVulnerability;
+          vulnerability = randomNumber3;
+          if (randomNumber2 < infectedRate) {
             value = 2;
-          }
-          else if(randomNumber2 < infectionRate + immunityRate){
+          } else if (randomNumber2 < infectedRate + immunityRate) {
             value = 3;
-            console.log(value)
+            vulnerability = 0;
+            console.log(value);
           } else {
             value = 1;
           }
@@ -181,11 +180,11 @@ export default function Home() {
 
         row.push({
           value,
+          vulnerability,
         });
       }
       newGrid.push(row);
     }
-    // console.log(newGrid);
     setGrid(newGrid);
   }, [refresh]);
 
@@ -205,34 +204,28 @@ export default function Home() {
         }
       }
       // * Iterate through infected cells and spread the disease
-      let isSpreading = 0;
       for (const infectedCell of infectedCells) {
         const { row, col } = infectedCell;
         if (row < rows && col < cols) {
           // * Spread Disease to the left of the sick person
           if (col > 0 && newGrid[row][col - 1]?.value === 1) {
             newGrid[row][col - 1].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the right of the sick person
           if (col < cols - 1 && newGrid[row][col + 1]?.value === 1) {
             newGrid[row][col + 1].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the top of the sick person
           if (row > 0 && newGrid[row - 1][col]?.value === 1) {
             newGrid[row - 1][col].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the bottom of the sick person
           if (row < rows - 1 && newGrid[row + 1][col]?.value === 1) {
             newGrid[row + 1][col].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the top left of the sick person
           if (row > 0 && col > 0 && newGrid[row - 1][col - 1]?.value === 1) {
             newGrid[row - 1][col - 1].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the top right of the sick person
           if (
@@ -241,7 +234,6 @@ export default function Home() {
             newGrid[row - 1][col + 1]?.value === 1
           ) {
             newGrid[row - 1][col + 1].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the bottom left of the sick person
           if (
@@ -250,7 +242,6 @@ export default function Home() {
             newGrid[row + 1][col - 1]?.value === 1
           ) {
             newGrid[row + 1][col - 1].value = 2;
-            isSpreading++;
           }
           // * Spread Disease to the bottom right of the sick person
           if (
@@ -259,19 +250,14 @@ export default function Home() {
             newGrid[row + 1][col + 1]?.value === 1
           ) {
             newGrid[row + 1][col + 1].value = 2;
-            isSpreading++;
           }
         }
       }
-      if(isSpreading === 0 && iteration > 0){
-        // console.log("Disease is not spreading anymore")
-        alert("Disease is not spreading anymore")
-      } else {
-        setGrid(newGrid);
-      }
-      
+      setGrid(newGrid);
     }
   }, [iteration]);
+
+
 
   // * Save Settings
   const saveSettings = (e) => {
@@ -296,9 +282,10 @@ export default function Home() {
           {grid.map((row, i) => {
             return row.map((col, j) => {
               return (
-                <GridBox
+                <Cell
                   key={`${i}${j}`}
                   value={col.value}
+                  vulnerability={col.vulnerability}
                   i={i}
                   j={j}
                   showVisuals={showVisuals}
@@ -339,10 +326,10 @@ export default function Home() {
       {showSettings && (
         <Settings
           populationDensity={populationDensity}
-          infectionRate={infectionRate}
+          infectionRate={infectedRate}
           rows={rows}
           setPopulationDensity={setPopulationDensity}
-          setInfectionRate={setInfectionRate}
+          setInfectionRate={setInfectedRate}
           setRows={setRows}
           setCols={setCols}
           saveSettings={saveSettings}
