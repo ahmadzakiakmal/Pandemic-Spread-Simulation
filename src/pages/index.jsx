@@ -205,28 +205,34 @@ export default function Home() {
         }
       }
       // * Iterate through infected cells and spread the disease
+      let isSpreading = 0;
       for (const infectedCell of infectedCells) {
         const { row, col } = infectedCell;
         if (row < rows && col < cols) {
           // * Spread Disease to the left of the sick person
           if (col > 0 && newGrid[row][col - 1]?.value === 1) {
             newGrid[row][col - 1].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the right of the sick person
           if (col < cols - 1 && newGrid[row][col + 1]?.value === 1) {
             newGrid[row][col + 1].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the top of the sick person
           if (row > 0 && newGrid[row - 1][col]?.value === 1) {
             newGrid[row - 1][col].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the bottom of the sick person
           if (row < rows - 1 && newGrid[row + 1][col]?.value === 1) {
             newGrid[row + 1][col].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the top left of the sick person
           if (row > 0 && col > 0 && newGrid[row - 1][col - 1]?.value === 1) {
             newGrid[row - 1][col - 1].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the top right of the sick person
           if (
@@ -235,6 +241,7 @@ export default function Home() {
             newGrid[row - 1][col + 1]?.value === 1
           ) {
             newGrid[row - 1][col + 1].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the bottom left of the sick person
           if (
@@ -243,6 +250,7 @@ export default function Home() {
             newGrid[row + 1][col - 1]?.value === 1
           ) {
             newGrid[row + 1][col - 1].value = 2;
+            isSpreading++;
           }
           // * Spread Disease to the bottom right of the sick person
           if (
@@ -251,10 +259,15 @@ export default function Home() {
             newGrid[row + 1][col + 1]?.value === 1
           ) {
             newGrid[row + 1][col + 1].value = 2;
+            isSpreading++;
           }
         }
       }
-      setGrid(newGrid);
+      if(isSpreading === 0){
+        alert(`Disease has stopped spreading`)
+      } else {
+        setGrid(newGrid);
+      }
       
     }
   }, [iteration]);
