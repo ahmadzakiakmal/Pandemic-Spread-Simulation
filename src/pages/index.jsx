@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { IoPerson } from "react-icons/io5";
 import { BsFillGearFill } from "react-icons/bs";
 
-function Cell({ value, showVisuals, i, j, vulnerability }) {
+function Cell({ value, showVisuals, i, j, durability }) {
   return (
     <div
       className={
@@ -23,15 +23,12 @@ function Cell({ value, showVisuals, i, j, vulnerability }) {
           <>
             <IoPerson
               className={
-                "text-[32px] " +
-                (value == 1
-                  ? "text-green-600"
-                  : value == 2
-                  ? "text-red-600"
-                  : "text-blue-600 relative z-[2]")
+                "text-[32px] relative z-[2] " +
+                (value == 1 ? "text-green-600" : "text-red-700") +
+                (durability == 1 ? " text-blue-700" : "")
               }
             />
-            {Number(vulnerability).toFixed(2) || ""}
+            {Number(durability).toFixed(2) || ""}
           </>
         )
       ) : (
@@ -47,12 +44,10 @@ function Settings({
   populationDensity,
   infectionRate,
   rows,
-  cols,
   setPopulationDensity,
   setInfectionRate,
   setRows,
   setCols,
-  setSpreadRange,
 }) {
   return (
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20]">
@@ -134,15 +129,14 @@ export default function Home() {
 
   // * Other Parameters
   // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap cell
-  const [populationDensity, setPopulationDensity] = useState(0.5);
+  const [populationDensity, setPopulationDensity] = useState(.5);
   // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas pembawa penyakit pada awal simulasi
-  const [infectedRate, setInfectedRate] = useState(1 / 100);  
-  // ? Rasio orang yang kebal dengan total orang - Dimodelkan dengan probabilitas munculnya orang yang kebal pada awal simulasi
-  const [immunityRate, setImmunityRate] = useState(1/50);
+  const [infectedRate, setInfectedRate] = useState(.01);
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan probability menularkan ke orang sekitar
-  const [infectionProbability, setInfectionProbability] = useState(0.5);
-  // ? Nilai minimum vulnerability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
-  const [minVulnerability, setMinVulnerability] = useState(0.5);
+  const [infectionProbability, setInfectionProbability] = useState(.9);
+  // ? Nilai maximum & minimum durability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
+  const [maxDurability, setMaxDurability] = useState(.5);
+  const [minDurability, setMinDurability] = useState(.2);
   // ? Iterasi waktu
   const [iteration, setIteration] = useState(0);
 
@@ -162,17 +156,13 @@ export default function Home() {
       for (let j = 0; j < rows; j++) {
         const randomNumber = Math.random();
         let value = 0;
-        let vulnerability = 0;
+        let durability = 0;
         if (randomNumber < populationDensity) {
           const randomNumber2 = Math.random();
-          const randomNumber3 = Math.random() * (1 - minVulnerability) + minVulnerability;
-          vulnerability = randomNumber3;
+          const randomNumber3 = Math.random() * (maxDurability - minDurability) + minDurability;
+          durability = randomNumber3;
           if (randomNumber2 < infectedRate) {
             value = 2;
-          } else if (randomNumber2 < infectedRate + immunityRate) {
-            value = 3;
-            vulnerability = 0;
-            console.log(value);
           } else {
             value = 1;
           }
@@ -180,7 +170,7 @@ export default function Home() {
 
         row.push({
           value,
-          vulnerability,
+          durability,
         });
       }
       newGrid.push(row);
@@ -204,28 +194,57 @@ export default function Home() {
         }
       }
       // * Iterate through infected cells and spread the disease
+      if(infectedCells.length == 0 && iteration > 0) {
+        alert("No more infected people left! Simulation has ended.");
+        return;
+      }
       for (const infectedCell of infectedCells) {
         const { row, col } = infectedCell;
         if (row < rows && col < cols) {
           // * Spread Disease to the left of the sick person
           if (col > 0 && newGrid[row][col - 1]?.value === 1) {
-            newGrid[row][col - 1].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row][col - 1].value = 2;
+            }
           }
           // * Spread Disease to the right of the sick person
           if (col < cols - 1 && newGrid[row][col + 1]?.value === 1) {
-            newGrid[row][col + 1].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row][col + 1].value = 2;
+            }
           }
           // * Spread Disease to the top of the sick person
           if (row > 0 && newGrid[row - 1][col]?.value === 1) {
-            newGrid[row - 1][col].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row - 1][col].value = 2;
+            }
           }
           // * Spread Disease to the bottom of the sick person
           if (row < rows - 1 && newGrid[row + 1][col]?.value === 1) {
-            newGrid[row + 1][col].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row + 1][col].value = 2;
+            }
           }
           // * Spread Disease to the top left of the sick person
           if (row > 0 && col > 0 && newGrid[row - 1][col - 1]?.value === 1) {
-            newGrid[row - 1][col - 1].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row - 1][col - 1].value = 2;
+            }
           }
           // * Spread Disease to the top right of the sick person
           if (
@@ -233,7 +252,12 @@ export default function Home() {
             col < cols - 1 &&
             newGrid[row - 1][col + 1]?.value === 1
           ) {
-            newGrid[row - 1][col + 1].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row - 1][col + 1].value = 2;
+            }
           }
           // * Spread Disease to the bottom left of the sick person
           if (
@@ -241,7 +265,12 @@ export default function Home() {
             col > 0 &&
             newGrid[row + 1][col - 1]?.value === 1
           ) {
-            newGrid[row + 1][col - 1].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row + 1][col - 1].value = 2;
+            }
           }
           // * Spread Disease to the bottom right of the sick person
           if (
@@ -249,15 +278,24 @@ export default function Home() {
             col < cols - 1 &&
             newGrid[row + 1][col + 1]?.value === 1
           ) {
-            newGrid[row + 1][col + 1].value = 2;
+            if (
+              Math.random() <
+              infectionProbability * (1 - newGrid[row][col].durability)
+            ) {
+              newGrid[row + 1][col + 1].value = 2;
+            }
+          }
+          // ? Recover from Disease
+          const randomNumber = Math.random();
+          if (randomNumber < (newGrid[row][col].durability) && iteration > 5) {
+            newGrid[row][col].value = 3;
+            newGrid[row][col].durability = 1;
           }
         }
       }
       setGrid(newGrid);
     }
   }, [iteration]);
-
-
 
   // * Save Settings
   const saveSettings = (e) => {
@@ -285,7 +323,7 @@ export default function Home() {
                 <Cell
                   key={`${i}${j}`}
                   value={col.value}
-                  vulnerability={col.vulnerability}
+                  durability={col.durability}
                   i={i}
                   j={j}
                   showVisuals={showVisuals}
