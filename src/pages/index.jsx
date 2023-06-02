@@ -10,7 +10,9 @@ function GridBox({ value, showVisuals, i, j }) {
         "w-[80px] transition-colors duration-200 aspect-square relative font-bold grid place-items-center border-black border-1 border box-border border-dashed " +
         (value == 2
           ? " bg-red-500/30 after:absolute after:w-[240px] after:aspect-square after:bg-red-500/[.15] "
-          : "")
+          : "") + (
+            value == 3 ? " bg-blue-500/30 after:absolute after:w-[80px] after:aspect-square after:bg-red-500/[.15] " : ""
+          )
       }
     >
       {showVisuals ? (
@@ -21,7 +23,8 @@ function GridBox({ value, showVisuals, i, j }) {
             <IoPerson
               className={
                 "text-[32px] " +
-                (value == 1 ? "text-green-600" : "text-red-800")
+                (value == 1 ? "text-green-600" : 
+                value == 2 ? "text-red-600" : "text-blue-600 relative z-[2]")
               }
             />
           </>
@@ -143,7 +146,7 @@ export default function Home() {
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan jarak neighborhood yang dapat tertular
   const [spreadRange, setSpreadRange] = useState(1);
   // ? Imunitas seseorang - Dimodelkan dengan probabilitas orang dalam jarak tertular, bisa tidak tertular
-  const [immunityRate, setImmunityRate] = useState(0.4);
+  const [immunityRate, setImmunityRate] = useState(0.1);
   // ? Iterasi waktu
   const [iteration, setIteration] = useState(0);
 
@@ -164,8 +167,13 @@ export default function Home() {
         const randomNumber = Math.random();
         let value = 0;
         if (randomNumber < populationDensity) {
-          if (randomNumber < infectionRate) {
+          const randomNumber2 = Math.random();
+          if (randomNumber2 < infectionRate) {
             value = 2;
+          }
+          else if(randomNumber2 < infectionRate + immunityRate){
+            value = 3;
+            console.log(value)
           } else {
             value = 1;
           }
@@ -177,7 +185,7 @@ export default function Home() {
       }
       newGrid.push(row);
     }
-    console.log(newGrid);
+    // console.log(newGrid);
     setGrid(newGrid);
   }, [refresh]);
 
