@@ -50,7 +50,7 @@ function Settings({
   setSpreadRange,
 }) {
   return (
-    <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0">
+    <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20]">
       <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
         <h1 className="text-center font-bold text-2xl mb-5">Settings</h1>
         <form
@@ -255,6 +255,7 @@ export default function Home() {
         }
       }
       setGrid(newGrid);
+      
     }
   }, [iteration]);
 
