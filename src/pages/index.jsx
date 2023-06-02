@@ -263,8 +263,9 @@ export default function Home() {
           }
         }
       }
-      if(isSpreading === 0){
-        alert(`Disease has stopped spreading`)
+      if(isSpreading === 0 && iteration > 0){
+        // console.log("Disease is not spreading anymore")
+        alert("Disease is not spreading anymore")
       } else {
         setGrid(newGrid);
       }
