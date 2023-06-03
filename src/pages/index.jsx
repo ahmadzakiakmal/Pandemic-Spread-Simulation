@@ -56,10 +56,10 @@ function Settings({
   return (
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20]">
       <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
-        <h1 className="text-center font-bold text-[1.4vw] mb-5">Settings</h1>
+        <h1 className="text-center font-bold text-[2vw] mb-5">Settings</h1>
         <form
           onSubmit={(e) => saveSettings(e)}
-          className="my-3 flex flex-col gap-4 text-[1.2vw]"
+          className="my-3 flex flex-col gap-4 text-[1.5vw]"
         >
           <div className="flex flex-row gap-4">
             <div className="w-full">
@@ -124,7 +124,7 @@ function Settings({
   );
 }
 
-function LineChart({ infectedArray }) {
+function LineChart({ infectedArray, className }) {
   const data = {
     labels: infectedArray.map((_, i) => i),
     datasets: [
@@ -149,8 +149,27 @@ function LineChart({ infectedArray }) {
     },
   };
   return (
-    <div className="w-full lg:w-[50%] flex justify-start fixed left-0 bottom-0">
+    <div className={className}>
       <Line data={data} options={options} />
+    </div>
+  );
+}
+
+function Result({ infectedArray, iteration, setShowResult }) {
+  return (
+    <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20] unselectable">
+      <div className="bg-white py-12 px-20 w-[60%] rounded-[5px]">
+        <h1 className="text-center font-bold text-[2vw] mb-5">Result</h1>
+        <h2 className="text-center font-semibold text-[1.5vw] mt-5">
+          Total Iteration
+        </h2>
+        <h2 className="text-center font-bold text-[1.8vw]">{iteration}</h2>
+        <h2 className="text-center font-semibold text-[1.5vw] mt-5">
+          Infected Amount - Iteration
+        </h2>
+        <LineChart infectedArray={infectedArray} className="w-full mx-auto" />
+        <div className="bg-black cursor-pointer text-white rounded-md mt-5 text-[1.5vw] hover:bg-black/90 w-fit mx-auto py-3 px-5" onClick={() => {setShowResult(false)}}>CLOSE</div>
+      </div>
     </div>
   );
 }
@@ -179,6 +198,7 @@ export default function Home() {
   const [showVisuals, setShowVisuals] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [showLiveChart, setShowLiveChart] = useState(false);
+  const [showResult, setShowResult] = useState(false);
   // ? Variables for simulation results
   const [infectedArray, setInfectedArray] = useState([0]);
 
@@ -235,7 +255,7 @@ export default function Home() {
       }
       // * Iterate through infected cells and spread the disease
       if (infectedCells.length == 0 && iteration > 0) {
-        alert("No more infected people left! Simulation has ended.");
+        setShowResult(true);
         return;
       }
       for (const infectedCell of infectedCells) {
@@ -354,8 +374,8 @@ export default function Home() {
 
   return (
     <main className="bg-white min-h-screen relative flex flex-col justify-center items-center py-10">
-      <h1 className="text-center text-black text-[1.4vw] font-bold">
-        Disease Spread Simulation
+      <h1 className="text-center text-black text-[2vw] font-bold">
+        Pandemic Simulation
       </h1>
       <div className="flex flex-col justify-center items-center gap-10 mt-5 relative z-[5]">
         <div
@@ -379,13 +399,13 @@ export default function Home() {
             });
           })}
         </div>
-        <h2 className="text-center text-black text-[1.2vw] font-bold">
+        <h2 className="text-center text-black text-[1.8vw] font-bold">
           Iteration {iteration}
         </h2>
         {/* Control Buttons */}
-        <div className="flex gap-5 relative z-[5]">
+        <div className="flex gap-5 relative z-[5] mt-[-20px]">
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
             onClick={() => {
               setRefresh(!refresh);
             }}
@@ -393,23 +413,23 @@ export default function Home() {
             Regenerate
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
             onClick={() => {
               iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
           >
             Next Iteration
           </div>
-          <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
+          {/* <div
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
             onClick={() => {
               iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
           >
             Auto Play
-          </div>
+          </div> */}
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
             onClick={() => {
               setShowLiveChart(!showLiveChart);
             }}
@@ -418,7 +438,12 @@ export default function Home() {
           </div>
         </div>
       </div>
-      {showLiveChart && <LineChart infectedArray={infectedArray} />}
+      {showLiveChart && (
+        <LineChart
+          infectedArray={infectedArray}
+          className="w-full lg:w-[50%] flex justify-start fixed left-0 bottom-0"
+        />
+      )}
       {/* Setting Button */}
       <div
         className="fixed top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90"
@@ -439,6 +464,8 @@ export default function Home() {
           saveSettings={saveSettings}
         />
       )}
+      {/* Results */}
+      {showResult && <Result infectedArray={infectedArray} iteration={iteration} setShowResult={setShowResult} />}
     </main>
   );
 }
