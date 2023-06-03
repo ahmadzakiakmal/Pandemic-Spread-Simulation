@@ -385,7 +385,7 @@ export default function Home() {
         {/* Control Buttons */}
         <div className="flex gap-5 relative z-[5]">
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
             onClick={() => {
               setRefresh(!refresh);
             }}
@@ -393,7 +393,7 @@ export default function Home() {
             Regenerate
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
             onClick={() => {
               iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
@@ -401,7 +401,7 @@ export default function Home() {
             Next Iteration
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
             onClick={() => {
               iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
@@ -409,7 +409,7 @@ export default function Home() {
             Auto Play
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw] px-4 rounded-md"
             onClick={() => {
               setShowLiveChart(!showLiveChart);
             }}
