@@ -168,7 +168,14 @@ function Result({ infectedArray, iteration, setShowResult }) {
           Infected Amount - Iteration
         </h2>
         <LineChart infectedArray={infectedArray} className="w-full mx-auto" />
-        <div className="bg-black cursor-pointer text-white rounded-md mt-5 text-[1.5vw] hover:bg-black/90 w-fit mx-auto py-3 px-5" onClick={() => {setShowResult(false)}}>CLOSE</div>
+        <div
+          className="bg-black cursor-pointer text-white rounded-md mt-5 text-[1.5vw] hover:bg-black/90 w-fit mx-auto py-3 px-5"
+          onClick={() => {
+            setShowResult(false);
+          }}
+        >
+          CLOSE
+        </div>
       </div>
     </div>
   );
@@ -378,8 +385,9 @@ export default function Home() {
         Pandemic Simulation
       </h1>
       <div className="flex flex-col justify-center items-center gap-10 mt-5 relative z-[5]">
+        {/* Grid */}
         <div
-          className="simulation-grid w-fit outline outline-1 outline-black !overflow-hidden"
+          className="simulation-grid w-fit outline outline-1 outline-black !overflow-hidden bg-white/50"
           style={{ "--grid-cols": rows }}
         >
           {grid.map((row, i) => {
@@ -420,14 +428,6 @@ export default function Home() {
           >
             Next Iteration
           </div>
-          {/* <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
-            onClick={() => {
-              iteration == null ? setIteration(0) : setIteration(iteration + 1);
-            }}
-          >
-            Auto Play
-          </div> */}
           <div
             className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
             onClick={() => {
@@ -441,7 +441,7 @@ export default function Home() {
       {showLiveChart && (
         <LineChart
           infectedArray={infectedArray}
-          className="w-full lg:w-[50%] flex justify-start fixed left-0 bottom-0"
+          className="w-full flex justify-start fixed left-0 bottom-0"
         />
       )}
       {/* Setting Button */}
@@ -449,7 +449,7 @@ export default function Home() {
         className="fixed top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90"
         onClick={() => setShowSettings(true)}
       >
-        <BsFillGearFill className="text-[30px]" />
+        <BsFillGearFill className="text-[2vw]" />
       </div>
       {/* Settings Menu */}
       {showSettings && (
@@ -465,7 +465,13 @@ export default function Home() {
         />
       )}
       {/* Results */}
-      {showResult && <Result infectedArray={infectedArray} iteration={iteration} setShowResult={setShowResult} />}
+      {showResult && (
+        <Result
+          infectedArray={infectedArray}
+          iteration={iteration}
+          setShowResult={setShowResult}
+        />
+      )}
     </main>
   );
 }
