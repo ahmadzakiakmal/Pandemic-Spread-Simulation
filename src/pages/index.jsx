@@ -56,10 +56,10 @@ function Settings({
   return (
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20]">
       <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
-        <h1 className="text-center font-bold text-2xl mb-5">Settings</h1>
+        <h1 className="text-center font-bold text-[1.4vw] mb-5">Settings</h1>
         <form
           onSubmit={(e) => saveSettings(e)}
-          className="my-3 flex flex-col gap-4"
+          className="my-3 flex flex-col gap-4 text-[1.2vw]"
         >
           <div className="flex flex-row gap-4">
             <div className="w-full">
@@ -131,12 +131,12 @@ function LineChart({ infectedArray }) {
       {
         label: "# of Infected",
         data: infectedArray,
-        fill: false,
         backgroundColor: "rgb(255, 99, 132)",
         borderColor: "rgba(255, 99, 132, 0.2)",
         tension: 0.1,
-        fill: true,
         cubicInterpolationMode: "monotone",
+        fill: true,
+        backgroundColor: "rgba(255, 99, 132, 0.4)",
       },
     ],
   };
@@ -149,7 +149,7 @@ function LineChart({ infectedArray }) {
     },
   };
   return (
-    <div className="w-[80%] h-[50%] mx-auto">
+    <div className="w-full lg:w-[50%] flex justify-start fixed left-0 bottom-0">
       <Line data={data} options={options} />
     </div>
   );
@@ -170,14 +170,15 @@ export default function Home() {
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan probability menularkan ke orang sekitar
   const [infectionProbability, setInfectionProbability] = useState(0.55);
   // ? Nilai maximum & minimum durability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
-  const [maxDurability, setMaxDurability] = useState(0.9);
-  const [minDurability, setMinDurability] = useState(0.7);
+  const [maxDurability, setMaxDurability] = useState(0.6);
+  const [minDurability, setMinDurability] = useState(0.5);
   // ? Iterasi waktu
   const [iteration, setIteration] = useState(0);
 
   // * Variables for Visual Needs
   const [showVisuals, setShowVisuals] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [showLiveChart, setShowLiveChart] = useState(false);
   // ? Variables for simulation results
   const [infectedArray, setInfectedArray] = useState([0]);
 
@@ -326,7 +327,10 @@ export default function Home() {
           }
           // ? Recover from Disease
           const randomNumber = Math.random();
-          if (randomNumber < newGrid[row][col].durability && iteration > 5) {
+          if (
+            randomNumber < newGrid[row][col].durability &&
+            iteration % 3 == 0
+          ) {
             newGrid[row][col].value = 3;
             newGrid[row][col].durability = 1;
           }
@@ -350,13 +354,10 @@ export default function Home() {
 
   return (
     <main className="bg-white min-h-screen relative flex flex-col justify-center items-center py-10">
-      <h1 className="text-center text-black text-3xl font-bold">
+      <h1 className="text-center text-black text-[1.4vw] font-bold">
         Disease Spread Simulation
       </h1>
-      <h2 className="text-center text-black text-2xl font-bold">
-        Iteration {iteration}
-      </h2>
-      <div className="flex flex-col justify-center items-center gap-10 mt-5">
+      <div className="flex flex-col justify-center items-center gap-10 mt-5 relative z-[5]">
         <div
           className="simulation-grid w-fit outline outline-1 outline-black !overflow-hidden"
           style={{ "--grid-cols": rows }}
@@ -378,9 +379,13 @@ export default function Home() {
             });
           })}
         </div>
-        <div className="flex gap-5">
+        <h2 className="text-center text-black text-[1.2vw] font-bold">
+          Iteration {iteration}
+        </h2>
+        {/* Control Buttons */}
+        <div className="flex gap-5 relative z-[5]">
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
             onClick={() => {
               setRefresh(!refresh);
             }}
@@ -388,21 +393,35 @@ export default function Home() {
             Regenerate
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable"
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
             onClick={() => {
               iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
           >
             Next Iteration
           </div>
+          <div
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
+            onClick={() => {
+              iteration == null ? setIteration(0) : setIteration(iteration + 1);
+            }}
+          >
+            Auto Play
+          </div>
+          <div
+            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.2vw]"
+            onClick={() => {
+              setShowLiveChart(!showLiveChart);
+            }}
+          >
+            Toggle Live Chart
+          </div>
         </div>
       </div>
-      <div className="flex justify-center w-[40%] fixed left-0 bottom-0">
-        <LineChart infectedArray={infectedArray} />
-      </div>
+      {showLiveChart && <LineChart infectedArray={infectedArray} />}
       {/* Setting Button */}
       <div
-        className="absolute top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90"
+        className="fixed top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90"
         onClick={() => setShowSettings(true)}
       >
         <BsFillGearFill className="text-[30px]" />
