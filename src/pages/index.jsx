@@ -29,7 +29,7 @@ function Cell({ value, showVisuals, i, j, durability }) {
               className={
                 "text-[32px] relative z-[2] " +
                 (value == 1 ? "text-green-600" : "text-red-700") +
-                (durability == 1 ? " text-blue-700" : "")
+                (durability == 1 ? " !text-blue-700" : "")
               }
             />
             {Number(durability).toFixed(2) || ""}
