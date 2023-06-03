@@ -46,10 +46,16 @@ function Cell({ value, showVisuals, i, j, durability }) {
 function Settings({
   saveSettings,
   populationDensity,
-  infectionRate,
-  rows,
   setPopulationDensity,
+  infectionRate,
   setInfectionRate,
+  infectionProbability,
+  setInfectionProbability,
+  minDurability,
+  setMinDurability,
+  maxDurability,
+  setMaxDurability,
+  rows,
   setRows,
   setCols,
 }) {
@@ -61,6 +67,7 @@ function Settings({
           onSubmit={(e) => saveSettings(e)}
           className="my-3 flex flex-col gap-4 text-[1.5vw]"
         >
+          <h1 className="text-[1.5vw] font-semibold text-center">Initial Generation</h1>
           <div className="flex flex-row gap-4">
             <div className="w-full">
               <label className="w-full block " htmlFor="rows">
@@ -86,32 +93,103 @@ function Settings({
             <label htmlFor="populationDensity">Population Density</label>
             <input
               className="!outline-none"
-              type="number"
+              type="text"
               name="populationDensity"
               id="populationDensity"
-              min={0}
-              max={1}
-              step={0.01}
               value={populationDensity}
-              onChange={(e) => setPopulationDensity(e.target.value)}
+              onChange={(e) => {
+                if (
+                  e.target.value > 1 ||
+                  e.target.value < 0 ||
+                  isNaN(e.target.value)
+                )
+                  return;
+                setPopulationDensity(e.target.value);
+              }}
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
           <div className="flex flex-col">
-            <label htmlFor="infectionRate">Infection Rate</label>
+            <label htmlFor="infectionRate">Infected Rate</label>
             <input
               className="!outline-none"
-              type="number"
+              type="text"
               name="infectionRate"
               id="infectionRate"
-              min={0}
-              max={1}
-              step={0.01}
               value={infectionRate}
-              onChange={(e) => setInfectionRate(e.target.value)}
+              onChange={(e) => {
+                if (
+                  e.target.value > 1 ||
+                  e.target.value < 0 ||
+                  isNaN(e.target.value)
+                )
+                  return;
+                setInfectionRate(e.target.value);
+              }}
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
+          <h1 className="text-[1.5vw] font-semibold text-center">Simulation</h1>
+          <div className="flex flex-col">
+            <label htmlFor="infectionRate">Infection Probability</label>
+            <input
+              className="!outline-none"
+              type="text"
+              name="infectionRate"
+              id="infectionRate"
+              value={infectionProbability}
+              onChange={(e) => {
+                if (
+                  e.target.value > 1 ||
+                  e.target.value < 0 ||
+                  isNaN(e.target.value)
+                )
+                  return;
+                setInfectionProbability(e.target.value);
+              }}
+            />
+            <hr className="h-[2px] bg-black/20" />
+          </div>
+          {/* // ! FIX: NaN BUG */}
+          {/* <div className="flex flex-col">
+            <label htmlFor="infectionRate">Min Durability</label>
+            <input
+              className="!outline-none"
+              type="text"
+              name="infectionRate"
+              id="infectionRate"
+              value={minDurability}
+              onChange={(e) => {
+                if (
+                  e.target.value > 1 ||
+                  e.target.value < 0 ||
+                  isNaN(e.target.value)
+                )
+                  return;
+                setMinDurability(e.target.value);
+              }}
+            />
+            <hr className="h-[2px] bg-black/20" />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="infectionRate">Max Durability</label>
+            <input
+              className="!outline-none"
+              type="text"
+              name="infectionRate"
+              id="infectionRate"
+              value={maxDurability}
+              onChange={(e) => {
+                if (
+                  e.target.value > 1 ||
+                  e.target.value < 0
+                )
+                  return;
+                setMaxDurability(e.target.value);
+              }}
+            />
+            <hr className="h-[2px] bg-black/20" />
+          </div> */}
           <button
             type="submit"
             className="bg-black text-white rounded-md py-2 mt-5 hover:bg-black/90"
@@ -183,7 +261,7 @@ function Result({ infectedArray, iteration, setShowResult }) {
 
 export default function Home() {
   // * Setup Grid
-  const [rows, setRows] = useState(5);
+  const [rows, setRows] = useState(10);
   const [cols, setCols] = useState(rows);
   const [grid, setGrid] = useState([]);
   const [colsClass, setColsClass] = useState("grid-cols-5");
@@ -194,7 +272,7 @@ export default function Home() {
   // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas pembawa penyakit pada awal simulasi
   const [infectedRate, setInfectedRate] = useState(0.01);
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan probability menularkan ke orang sekitar
-  const [infectionProbability, setInfectionProbability] = useState(0.55);
+  const [infectionProbability, setInfectionProbability] = useState(0.5);
   // ? Nilai maximum & minimum durability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
   const [maxDurability, setMaxDurability] = useState(0.6);
   const [minDurability, setMinDurability] = useState(0.5);
@@ -454,14 +532,21 @@ export default function Home() {
       {/* Settings Menu */}
       {showSettings && (
         <Settings
+        rows={rows}
           populationDensity={populationDensity}
-          infectionRate={infectedRate}
-          rows={rows}
           setPopulationDensity={setPopulationDensity}
+          infectionRate={infectedRate}
           setInfectionRate={setInfectedRate}
+          infectionProbability={infectionProbability}
+          setInfectionProbability={setInfectionProbability}
+          minDurability={minDurability}
+          setMinDurability={setMinDurability}
+          maxDurability={maxDurability}
+          setMaxDurability={setMaxDurability}
           setRows={setRows}
           setCols={setCols}
           saveSettings={saveSettings}
+          
         />
       )}
       {/* Results */}
