@@ -2,6 +2,10 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { IoPerson } from "react-icons/io5";
 import { BsFillGearFill } from "react-icons/bs";
+import { Chart as ChartJS } from "chart.js";
+import { registerables } from "chart.js";
+import { Line } from "react-chartjs-2";
+ChartJS.register(...registerables);
 
 function Cell({ value, showVisuals, i, j, durability }) {
   return (
@@ -120,6 +124,37 @@ function Settings({
   );
 }
 
+function LineChart({ infectedArray }) {
+  const data = {
+    labels: infectedArray.map((_, i) => i),
+    datasets: [
+      {
+        label: "# of Infected",
+        data: infectedArray,
+        fill: false,
+        backgroundColor: "rgb(255, 99, 132)",
+        borderColor: "rgba(255, 99, 132, 0.2)",
+        tension: 0.1,
+        fill: true,
+        cubicInterpolationMode: "monotone",
+      },
+    ],
+  };
+
+  const options = {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+  return (
+    <div className="w-[80%] h-[50%] mx-auto">
+      <Line data={data} options={options} />
+    </div>
+  );
+}
+
 export default function Home() {
   // * Setup Grid
   const [rows, setRows] = useState(5);
@@ -129,20 +164,22 @@ export default function Home() {
 
   // * Other Parameters
   // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap cell
-  const [populationDensity, setPopulationDensity] = useState(.5);
+  const [populationDensity, setPopulationDensity] = useState(0.5);
   // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas pembawa penyakit pada awal simulasi
-  const [infectedRate, setInfectedRate] = useState(.01);
+  const [infectedRate, setInfectedRate] = useState(0.01);
   // ? Ukuran seberapa menular penyakit - Dimodelkan dengan probability menularkan ke orang sekitar
-  const [infectionProbability, setInfectionProbability] = useState(.9);
+  const [infectionProbability, setInfectionProbability] = useState(0.55);
   // ? Nilai maximum & minimum durability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
-  const [maxDurability, setMaxDurability] = useState(.5);
-  const [minDurability, setMinDurability] = useState(.2);
+  const [maxDurability, setMaxDurability] = useState(0.9);
+  const [minDurability, setMinDurability] = useState(0.7);
   // ? Iterasi waktu
   const [iteration, setIteration] = useState(0);
 
   // * Variables for Visual Needs
   const [showVisuals, setShowVisuals] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  // ? Variables for simulation results
+  const [infectedArray, setInfectedArray] = useState([0]);
 
   // * Utility Variables
   const [refresh, setRefresh] = useState(false);
@@ -150,6 +187,7 @@ export default function Home() {
   // * Populate Grid
   useEffect(() => {
     setIteration(0);
+    setInfectedArray([0]);
     const newGrid = [];
     for (let i = 0; i < cols; i++) {
       const row = [];
@@ -159,7 +197,8 @@ export default function Home() {
         let durability = 0;
         if (randomNumber < populationDensity) {
           const randomNumber2 = Math.random();
-          const randomNumber3 = Math.random() * (maxDurability - minDurability) + minDurability;
+          const randomNumber3 =
+            Math.random() * (maxDurability - minDurability) + minDurability;
           durability = randomNumber3;
           if (randomNumber2 < infectedRate) {
             value = 2;
@@ -194,7 +233,7 @@ export default function Home() {
         }
       }
       // * Iterate through infected cells and spread the disease
-      if(infectedCells.length == 0 && iteration > 0) {
+      if (infectedCells.length == 0 && iteration > 0) {
         alert("No more infected people left! Simulation has ended.");
         return;
       }
@@ -287,12 +326,17 @@ export default function Home() {
           }
           // ? Recover from Disease
           const randomNumber = Math.random();
-          if (randomNumber < (newGrid[row][col].durability) && iteration > 5) {
+          if (randomNumber < newGrid[row][col].durability && iteration > 5) {
             newGrid[row][col].value = 3;
             newGrid[row][col].durability = 1;
           }
         }
       }
+      const amountOfInfected = newGrid
+        .flat()
+        .filter((cell) => cell.value === 2).length;
+      setInfectedArray((prev) => [...prev, amountOfInfected]);
+      console.log(infectedArray);
       setGrid(newGrid);
     }
   }, [iteration]);
@@ -352,6 +396,9 @@ export default function Home() {
             Next Iteration
           </div>
         </div>
+      </div>
+      <div className="flex justify-center w-[40%] fixed left-0 bottom-0">
+        <LineChart infectedArray={infectedArray} />
       </div>
       {/* Setting Button */}
       <div
