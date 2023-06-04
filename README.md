@@ -2,7 +2,7 @@
 
 **Made for Modelling and Simulation assignment.**
 
-Deployment available at [https://disease-spread-simulation.vercel.app/](https://disease-spread-simulation.vercel.app/).**
+**Deployment available at [https://disease-spread-simulation.vercel.app/](https://disease-spread-simulation.vercel.app/).**
 
 ****GitHub Repository**** https://github.com/ahmadzaki2975/Pandemic-Spread-Simulation.
 
