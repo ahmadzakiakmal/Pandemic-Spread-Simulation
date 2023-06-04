@@ -150,8 +150,7 @@ function Settings({
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
-          {/* // ! FIX: NaN BUG */}
-          {/* <div className="flex flex-col">
+          <div className="flex flex-col">
             <label htmlFor="infectionRate">Min Durability</label>
             <input
               className="!outline-none"
@@ -189,7 +188,7 @@ function Settings({
               }}
             />
             <hr className="h-[2px] bg-black/20" />
-          </div> */}
+          </div>
           <button
             type="submit"
             className="bg-black text-white rounded-md py-2 mt-5 hover:bg-black/90"
@@ -302,7 +301,7 @@ export default function Home() {
         if (randomNumber < populationDensity) {
           const randomNumber2 = Math.random();    // ? Random number to determine state
           const randomNumber3 =   // ? Random number to determine durability
-            Math.random() * (maxDurability - minDurability) + minDurability;
+            Math.random() * (Number(maxDurability) - Number(minDurability)) + Number(minDurability);
           durability = randomNumber3;
           if (randomNumber2 < infectedRate) {
             value = 2;
@@ -432,7 +431,7 @@ export default function Home() {
           // ? A chance to recover every 3 iterations
           const randomNumber = Math.random();
           if (
-            randomNumber < newGrid[row][col].durability &&
+            randomNumber < (newGrid[row][col].durability + (iteration/1000)) &&
             iteration % 3 == 0
           ) {
             newGrid[row][col].value = 3;
