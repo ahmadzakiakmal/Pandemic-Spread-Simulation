@@ -260,23 +260,21 @@ function Result({ infectedArray, iteration, setShowResult }) {
 }
 
 export default function Home() {
-  // * Setup Grid
+  // * Main Variables
+  // ? Grid Setup
   const [rows, setRows] = useState(10);
   const [cols, setCols] = useState(rows);
   const [grid, setGrid] = useState([]);
-  const [colsClass, setColsClass] = useState("grid-cols-5");
-
-  // * Other Parameters
-  // ? Rasio orang dengan total grid / Kepadatan populasi di area - Dimodelkan dengan probabilitas adanya orang dalam tiap cell
+  // ? Population Density - Probability of a cell being occupied
   const [populationDensity, setPopulationDensity] = useState(0.5);
-  // ? Rasio orang yang terinfeksi dengan total orang - Dimodelkan dengan probabilitas pembawa penyakit pada awal simulasi
+  // ? Infected Rate - Probability of a cell being generated as infected (initial carrier)
   const [infectedRate, setInfectedRate] = useState(0.01);
-  // ? Ukuran seberapa menular penyakit - Dimodelkan dengan probability menularkan ke orang sekitar
+  // ? Infection Probability - Probability of an infection happening to a cell within an infection zone
   const [infectionProbability, setInfectionProbability] = useState(0.5);
-  // ? Nilai maximum & minimum durability - Memodelkan tingkat kesehatan di wilayah yang disimulasikan
+  // ? Health factors - Durability of a cell to resist infection or recover from infection
   const [maxDurability, setMaxDurability] = useState(0.6);
   const [minDurability, setMinDurability] = useState(0.5);
-  // ? Iterasi waktu
+  // ? Iteration
   const [iteration, setIteration] = useState(0);
 
   // * Variables for Visual Needs
@@ -284,7 +282,6 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [showLiveChart, setShowLiveChart] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  // ? Variables for simulation results
   const [infectedArray, setInfectedArray] = useState([0]);
 
   // * Utility Variables
@@ -292,9 +289,10 @@ export default function Home() {
 
   // * Populate Grid
   useEffect(() => {
-    setIteration(0);
-    setInfectedArray([0]);
-    const newGrid = [];
+    setIteration(0);    //? Reset Iteration
+    setInfectedArray([0]); // ? Reset Infected Array
+    const newGrid = [];   // ? Make a copy of the grid
+    // ? Iterate through the grid and populate it with cells
     for (let i = 0; i < cols; i++) {
       const row = [];
       for (let j = 0; j < rows; j++) {
@@ -302,8 +300,8 @@ export default function Home() {
         let value = 0;
         let durability = 0;
         if (randomNumber < populationDensity) {
-          const randomNumber2 = Math.random();
-          const randomNumber3 =
+          const randomNumber2 = Math.random();    // ? Random number to determine state
+          const randomNumber3 =   // ? Random number to determine durability
             Math.random() * (maxDurability - minDurability) + minDurability;
           durability = randomNumber3;
           if (randomNumber2 < infectedRate) {
@@ -312,41 +310,42 @@ export default function Home() {
             value = 1;
           }
         }
-
+        // ? Push the cell into the row with its value and durability
         row.push({
           value,
           durability,
         });
       }
-      newGrid.push(row);
+      newGrid.push(row);    // ? Push the row into the grid
     }
-    setGrid(newGrid);
-  }, [refresh]);
+    setGrid(newGrid);   // ? Set the grid to the new grid to update the UI
+  }, [refresh]);    // ? Re-populate the grid when the refresh variable changes
 
-  // * Spread Disease
+  // ? Spread Disease
   useEffect(() => {
-    const newGrid = JSON.parse(JSON.stringify(grid)); // * Create a new copy of the grid
-    const infectedCells = [];
-    if (grid.length > 0) {
+    const newGrid = JSON.parse(JSON.stringify(grid));   // ? Make a copy of the grid
+    const infectedCells = [];   // ? Array to store the infected cells
+    if (grid.length > 0) {    // ? Prevent reading undefined grid
       console.log(`Iteration ${iteration}`);
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-          if (grid[i][j]) {
-            if (grid[i][j]?.value === 2) {
-              infectedCells.push({ row: i, col: j }); // * Store the infected cell coordinates
+      for (let i = 0; i < cols; i++) {    // ? Iterate through the columns
+        for (let j = 0; j < rows; j++) {    // ? Iterate through the rows
+          if (grid[i][j]) {   // ? Prevent reading undefined cell
+            if (grid[i][j]?.value === 2) {    
+              infectedCells.push({ row: i, col: j }); // ? Store the infected cell coordinates
             }
           }
         }
       }
-      // * Iterate through infected cells and spread the disease
+      // ? If there are no infected cells, end the simulation
       if (infectedCells.length == 0 && iteration > 0) {
         setShowResult(true);
         return;
       }
+      // ? Iterate through infected cells and spread the disease
       for (const infectedCell of infectedCells) {
         const { row, col } = infectedCell;
         if (row < rows && col < cols) {
-          // * Spread Disease to the left of the sick person
+          // ? Spread Disease to the left of the sick person
           if (col > 0 && newGrid[row][col - 1]?.value === 1) {
             if (
               Math.random() <
@@ -355,7 +354,7 @@ export default function Home() {
               newGrid[row][col - 1].value = 2;
             }
           }
-          // * Spread Disease to the right of the sick person
+          // ? Spread Disease to the right of the sick person
           if (col < cols - 1 && newGrid[row][col + 1]?.value === 1) {
             if (
               Math.random() <
@@ -364,7 +363,7 @@ export default function Home() {
               newGrid[row][col + 1].value = 2;
             }
           }
-          // * Spread Disease to the top of the sick person
+          // ? Spread Disease to the top of the sick person
           if (row > 0 && newGrid[row - 1][col]?.value === 1) {
             if (
               Math.random() <
@@ -373,7 +372,7 @@ export default function Home() {
               newGrid[row - 1][col].value = 2;
             }
           }
-          // * Spread Disease to the bottom of the sick person
+          // ? Spread Disease to the bottom of the sick person
           if (row < rows - 1 && newGrid[row + 1][col]?.value === 1) {
             if (
               Math.random() <
@@ -382,7 +381,7 @@ export default function Home() {
               newGrid[row + 1][col].value = 2;
             }
           }
-          // * Spread Disease to the top left of the sick person
+          // ? Spread Disease to the top left of the sick person
           if (row > 0 && col > 0 && newGrid[row - 1][col - 1]?.value === 1) {
             if (
               Math.random() <
@@ -391,7 +390,7 @@ export default function Home() {
               newGrid[row - 1][col - 1].value = 2;
             }
           }
-          // * Spread Disease to the top right of the sick person
+          // ? Spread Disease to the top right of the sick person
           if (
             row > 0 &&
             col < cols - 1 &&
@@ -404,7 +403,7 @@ export default function Home() {
               newGrid[row - 1][col + 1].value = 2;
             }
           }
-          // * Spread Disease to the bottom left of the sick person
+          // ? Spread Disease to the bottom left of the sick person
           if (
             row < rows - 1 &&
             col > 0 &&
@@ -417,7 +416,7 @@ export default function Home() {
               newGrid[row + 1][col - 1].value = 2;
             }
           }
-          // * Spread Disease to the bottom right of the sick person
+          // ? Spread Disease to the bottom right of the sick person
           if (
             row < rows - 1 &&
             col < cols - 1 &&
@@ -430,7 +429,7 @@ export default function Home() {
               newGrid[row + 1][col + 1].value = 2;
             }
           }
-          // ? Recover from Disease
+          // ? A chance to recover every 3 iterations
           const randomNumber = Math.random();
           if (
             randomNumber < newGrid[row][col].durability &&
@@ -441,14 +440,15 @@ export default function Home() {
           }
         }
       }
+      // ? Count the amount of infected people to display in a line chart
       const amountOfInfected = newGrid
         .flat()
         .filter((cell) => cell.value === 2).length;
-      setInfectedArray((prev) => [...prev, amountOfInfected]);
+      setInfectedArray((prev) => [...prev, amountOfInfected]);    // ? Add the amount of infected people to the array
       console.log(infectedArray);
-      setGrid(newGrid);
+      setGrid(newGrid);  // ? Update the grid
     }
-  }, [iteration]);
+  }, [iteration]);  // ? Run every time the iteration changes
 
   // * Save Settings
   const saveSettings = (e) => {
