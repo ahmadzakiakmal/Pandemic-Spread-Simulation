@@ -70,13 +70,13 @@ function Settings({
 }) {
   return (
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20]">
-      <div className="bg-white py-5 px-10 w-[50%] rounded-[5px]">
-        <h1 className="text-center font-bold text-[2vw] mb-5">Settings</h1>
+      <div className="bg-white py-5 px-10 w-full md:w-[50%] rounded-[5px] ">
+        <h1 className="text-center font-bold text-[max(2vw,20px)] mb-5">Settings</h1>
         <form
           onSubmit={(e) => saveSettings(e)}
-          className="my-3 flex flex-col gap-4 text-[1.5vw]"
+          className="my-3 flex flex-col gap-4 text-[max(1.5vw,16px)]"
         >
-          <h1 className="text-[1.5vw] font-semibold text-center">
+          <h1 className="text-[max(1.5vw,16px)] font-semibold text-center">
             Initial Generation
           </h1>
           <div className="flex flex-row gap-4">
@@ -140,7 +140,7 @@ function Settings({
             />
             <hr className="h-[2px] bg-black/20" />
           </div>
-          <h1 className="text-[1.5vw] font-semibold text-center">Simulation</h1>
+          <h1 className="text-[max(1.5vw,16px)] font-semibold text-center">Simulation</h1>
           <div className="flex flex-col">
             <label htmlFor="infectionRate">Infection Probability</label>
             <input
@@ -244,16 +244,16 @@ function Result({ infectedArray, iteration, setShowResult }) {
     <div className="fixed w-screen h-screen bg-black/50 grid place-items-center top-0 z-[20] unselectable">
       <div className="bg-white py-12 px-20 w-[60%] rounded-[5px]">
         <h1 className="text-center font-bold text-[2vw] mb-5">Result</h1>
-        <h2 className="text-center font-semibold text-[1.5vw] mt-5">
+        <h2 className="text-center font-semibold text-[max(1.5vw,16px)] mt-5">
           Total Iteration
         </h2>
         <h2 className="text-center font-bold text-[1.8vw]">{iteration}</h2>
-        <h2 className="text-center font-semibold text-[1.5vw] mt-5">
+        <h2 className="text-center font-semibold text-[max(1.5vw,16px)] mt-5">
           Infected Amount - Iteration
         </h2>
         <LineChart infectedArray={infectedArray} className="w-full mx-auto" />
         <div
-          className="bg-black cursor-pointer text-white rounded-md mt-5 text-[1.5vw] hover:bg-black/90 w-fit mx-auto py-3 px-5"
+          className="bg-black cursor-pointer text-white rounded-md mt-5 text-[max(1.5vw,16px)] hover:bg-black/90 w-fit mx-auto py-3 px-5"
           onClick={() => {
             setShowResult(false);
           }}
@@ -470,7 +470,7 @@ export default function Home() {
 
   return (
     <main className="bg-white min-h-screen relative flex flex-col justify-center items-center py-10">
-      <h1 className="text-center text-black text-[2vw] font-bold">
+      <h1 className="text-center text-black text-[max(2vw,20px)] font-bold">
         Pandemic Simulation
       </h1>
       <div className="flex flex-col justify-center items-center gap-10 mt-5 relative z-[5]">
@@ -496,13 +496,13 @@ export default function Home() {
             });
           })}
         </div>
-        <h2 className="text-center text-black text-[1.8vw] font-bold">
+        <h2 className="text-center text-black text-[max(1.8vw,19px)] font-bold">
           Iteration {iteration}
         </h2>
         {/* Control Buttons */}
         <div className="flex gap-5 relative z-[5] mt-[-20px]">
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
+            className="bg-black text-white cursor-pointer p-3 grid place-items-center text-center unselectable hover:bg-black/90 text-[max(1.5vw,16px)] px-4 rounded-md"
             onClick={() => {
               setRefresh(!refresh);
             }}
@@ -510,7 +510,7 @@ export default function Home() {
             Regenerate
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
+            className="bg-black text-white cursor-pointer p-3 grid place-items-center text-center unselectable hover:bg-black/90 text-[max(1.5vw,16px)] px-4 rounded-md"
             onClick={() => {
               iteration == null ? setIteration(0) : setIteration(iteration + 1);
             }}
@@ -518,7 +518,7 @@ export default function Home() {
             Next Iteration
           </div>
           <div
-            className="bg-black text-white cursor-pointer p-3 unselectable hover:bg-black/90 text-[1.5vw] px-4 rounded-md"
+            className="bg-black text-white cursor-pointer p-3 grid place-items-center text-center unselectable hover:bg-black/90 text-[max(1.5vw,16px)] px-4 rounded-md"
             onClick={() => {
               setShowLiveChart(!showLiveChart);
             }}
@@ -539,13 +539,13 @@ export default function Home() {
           className="cursor-pointer bg-slate-400 w-full hover:bg-slate-400/90 p-5 rounded-br-[10px]"
           onClick={() => setShowSettings(true)}
         >
-          <BsFillGearFill className="text-[2vw]" />
+          <BsFillGearFill className="text-[max(2vw,20px)]" />
         </div>
         <div
           className="cursor-pointer bg-orange-400 w-full hover:bg-orange-400/90 p-5 rounded-r-[10px]"
           onClick={() => setShowVisuals(!showVisuals)}
         >
-          <BsEye className="text-[2vw]" />
+          <BsEye className="text-[max(2vw,20px)]" />
         </div>
       </div>
       {/* Settings Menu */}

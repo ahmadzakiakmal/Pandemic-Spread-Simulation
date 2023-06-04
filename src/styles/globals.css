@@ -12,6 +12,10 @@ html {
   overflow-x: hidden !important;
 }
 
+body {
+  overflow-x: hidden !important;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
