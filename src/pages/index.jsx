@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { IoPerson } from "react-icons/io5";
-import { BsFillGearFill } from "react-icons/bs";
+import { BsFillGearFill, BsEyeFill, BsEye } from "react-icons/bs";
 import { Chart as ChartJS } from "chart.js";
 import { registerables } from "chart.js";
 import { Line } from "react-chartjs-2";
@@ -36,7 +36,16 @@ function Cell({ value, showVisuals, i, j, durability }) {
           </>
         )
       ) : (
-        <></>
+        <h1
+          className={
+            "text-[32px] relative z-[2] " +
+            (value == 1 ? "text-green-600" : "") +
+            (value == 2 ? "text-red-700" : "") +
+            (durability == 1 ? " !text-blue-700" : "")
+          }
+        >
+          {value}
+        </h1>
       )}
       {/* {i + "," + j} */}
     </div>
@@ -67,7 +76,9 @@ function Settings({
           onSubmit={(e) => saveSettings(e)}
           className="my-3 flex flex-col gap-4 text-[1.5vw]"
         >
-          <h1 className="text-[1.5vw] font-semibold text-center">Initial Generation</h1>
+          <h1 className="text-[1.5vw] font-semibold text-center">
+            Initial Generation
+          </h1>
           <div className="flex flex-row gap-4">
             <div className="w-full">
               <label className="w-full block " htmlFor="rows">
@@ -179,11 +190,7 @@ function Settings({
               id="infectionRate"
               value={maxDurability}
               onChange={(e) => {
-                if (
-                  e.target.value > 1 ||
-                  e.target.value < 0
-                )
-                  return;
+                if (e.target.value > 1 || e.target.value < 0) return;
                 setMaxDurability(e.target.value);
               }}
             />
@@ -288,9 +295,9 @@ export default function Home() {
 
   // * Populate Grid
   useEffect(() => {
-    setIteration(0);    //? Reset Iteration
+    setIteration(0); //? Reset Iteration
     setInfectedArray([0]); // ? Reset Infected Array
-    const newGrid = [];   // ? Make a copy of the grid
+    const newGrid = []; // ? Make a copy of the grid
     // ? Iterate through the grid and populate it with cells
     for (let i = 0; i < cols; i++) {
       const row = [];
@@ -299,9 +306,10 @@ export default function Home() {
         let value = 0;
         let durability = 0;
         if (randomNumber < populationDensity) {
-          const randomNumber2 = Math.random();    // ? Random number to determine state
-          const randomNumber3 =   // ? Random number to determine durability
-            Math.random() * (Number(maxDurability) - Number(minDurability)) + Number(minDurability);
+          const randomNumber2 = Math.random(); // ? Random number to determine state
+          const randomNumber3 = // ? Random number to determine durability
+            Math.random() * (Number(maxDurability) - Number(minDurability)) +
+            Number(minDurability);
           durability = randomNumber3;
           if (randomNumber2 < infectedRate) {
             value = 2;
@@ -315,21 +323,25 @@ export default function Home() {
           durability,
         });
       }
-      newGrid.push(row);    // ? Push the row into the grid
+      newGrid.push(row); // ? Push the row into the grid
     }
-    setGrid(newGrid);   // ? Set the grid to the new grid to update the UI
-  }, [refresh]);    // ? Re-populate the grid when the refresh variable changes
+    setGrid(newGrid); // ? Set the grid to the new grid to update the UI
+  }, [refresh]); // ? Re-populate the grid when the refresh variable changes
 
   // ? Spread Disease
   useEffect(() => {
-    const newGrid = JSON.parse(JSON.stringify(grid));   // ? Make a copy of the grid
-    const infectedCells = [];   // ? Array to store the infected cells
-    if (grid.length > 0) {    // ? Prevent reading undefined grid
+    const newGrid = JSON.parse(JSON.stringify(grid)); // ? Make a copy of the grid
+    const infectedCells = []; // ? Array to store the infected cells
+    if (grid.length > 0) {
+      // ? Prevent reading undefined grid
       console.log(`Iteration ${iteration}`);
-      for (let i = 0; i < cols; i++) {    // ? Iterate through the columns
-        for (let j = 0; j < rows; j++) {    // ? Iterate through the rows
-          if (grid[i][j]) {   // ? Prevent reading undefined cell
-            if (grid[i][j]?.value === 2) {    
+      for (let i = 0; i < cols; i++) {
+        // ? Iterate through the columns
+        for (let j = 0; j < rows; j++) {
+          // ? Iterate through the rows
+          if (grid[i][j]) {
+            // ? Prevent reading undefined cell
+            if (grid[i][j]?.value === 2) {
               infectedCells.push({ row: i, col: j }); // ? Store the infected cell coordinates
             }
           }
@@ -431,7 +443,7 @@ export default function Home() {
           // ? A chance to recover every 3 iterations
           const randomNumber = Math.random();
           if (
-            randomNumber < (newGrid[row][col].durability + (iteration/1000)) &&
+            randomNumber < newGrid[row][col].durability + iteration / 1000 &&
             iteration % 3 == 0
           ) {
             newGrid[row][col].value = 3;
@@ -443,11 +455,11 @@ export default function Home() {
       const amountOfInfected = newGrid
         .flat()
         .filter((cell) => cell.value === 2).length;
-      setInfectedArray((prev) => [...prev, amountOfInfected]);    // ? Add the amount of infected people to the array
+      setInfectedArray((prev) => [...prev, amountOfInfected]); // ? Add the amount of infected people to the array
       console.log(infectedArray);
-      setGrid(newGrid);  // ? Update the grid
+      setGrid(newGrid); // ? Update the grid
     }
-  }, [iteration]);  // ? Run every time the iteration changes
+  }, [iteration]); // ? Run every time the iteration changes
 
   // * Save Settings
   const saveSettings = (e) => {
@@ -522,16 +534,24 @@ export default function Home() {
         />
       )}
       {/* Setting Button */}
-      <div
-        className="fixed top-0 left-0 p-5 bg-slate-400 rounded-br-[10px] cursor-pointer hover:bg-slate-400/90"
-        onClick={() => setShowSettings(true)}
-      >
-        <BsFillGearFill className="text-[2vw]" />
+      <div className="fixed top-0 left-0">
+        <div
+          className="cursor-pointer bg-slate-400 w-full hover:bg-slate-400/90 p-5 rounded-br-[10px]"
+          onClick={() => setShowSettings(true)}
+        >
+          <BsFillGearFill className="text-[2vw]" />
+        </div>
+        <div
+          className="cursor-pointer bg-orange-400 w-full hover:bg-orange-400/90 p-5 rounded-r-[10px]"
+          onClick={() => setShowVisuals(!showVisuals)}
+        >
+          <BsEye className="text-[2vw]" />
+        </div>
       </div>
       {/* Settings Menu */}
       {showSettings && (
         <Settings
-        rows={rows}
+          rows={rows}
           populationDensity={populationDensity}
           setPopulationDensity={setPopulationDensity}
           infectionRate={infectedRate}
@@ -545,7 +565,6 @@ export default function Home() {
           setRows={setRows}
           setCols={setCols}
           saveSettings={saveSettings}
-          
         />
       )}
       {/* Results */}
